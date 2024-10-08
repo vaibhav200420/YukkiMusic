@@ -18,17 +18,17 @@ load_dotenv()
 
 # Get it from my.telegram.org
 
-API_ID = int(getenv("API_ID", "28178139"))
+API_ID = int(getenv("API_ID", ""))
 
-API_HASH = getenv("API_HASH", "85172511f45230b7f8bb304f5ed8e6d8")
+API_HASH = getenv("API_HASH")
 
 
 ## Get it from @Botfather in Telegram.
-BOT_TOKEN = getenv("BOT_TOKEN", "7332405915:AAEcPjT88nE5MAjlhNnHSXiXt_UuoMmgjmM")
+BOT_TOKEN = getenv("BOT_TOKEN")
 
 
 # Database to save your chats and stats... Get MongoDB:-  https://telegra.ph/How-To-get-Mongodb-URI-04-06
-MONGO_DB_URI = getenv("MONGO_DB_URI", "mongodb+srv://musicoxic:9ERpeGOTxckFV701@musicoxicz.kyrzfrv.mongodb.net/?retryWrites=true&w=majority&appName=musicoxicz")
+MONGO_DB_URI = getenv("MONGO_DB_URI", None)
 
 CLEANMODE_DELETE_MINS = int(
     getenv("CLEANMODE_MINS", "5")
@@ -69,12 +69,12 @@ SONG_DOWNLOAD_DURATION = int(
 
 
 # You'll need a Private Group ID for this.
-LOG_GROUP_ID = int(getenv("LOG_GROUP_ID", "-1002108873378"))
+LOG_GROUP_ID = int(getenv("LOG_GROUP_ID", ""))
 
 
 # Your User ID.
 OWNER_ID = list(
-    map(int, getenv("OWNER_ID", "1750583099").split())
+    map(int, getenv("OWNER_ID", "6815918609").split())
 )  # Input type must be interger
 
 
@@ -95,7 +95,7 @@ HEROKU_APP_NAME = getenv("HEROKU_APP_NAME")
 # For customized or modified Repository
 UPSTREAM_REPO = getenv(
     "UPSTREAM_REPO",
-    "https://github.com/vaibhav200420/YukkiMusic",
+    "https://github.com/Vivekkumar-IN/YukkiMusic",
 )
 UPSTREAM_BRANCH = getenv("UPSTREAM_BRANCH", "master")
 
@@ -106,12 +106,12 @@ GIT_TOKEN = getenv(
 )
 
 
-#  Only  Links formats are  accepted for this Var value.
+# Only  Links formats are  accepted for this Var value.
 SUPPORT_CHANNEL = getenv(
-    "SUPPORT_CHANNEL", "https://t.me/Ps_Corporation_Com"
+    "SUPPORT_CHANNEL", "https://t.me/TheTeamVivek"
 )  # Example:- https://t.me/TheTeamVivek
 SUPPORT_GROUP = getenv(
-    "SUPPORT_GROUP", "https://t.me/+sW_L1vwSZ1Y4NDQ9"
+    "SUPPORT_GROUP", "https://t.me/TheTeamVk"
 )  # Example:- https://t.me/TheTeamVk
 
 
@@ -136,7 +136,7 @@ TELEGRAM_DOWNLOAD_EDIT_SLEEP = int(getenv("TELEGRAM_EDIT_SLEEP", "5"))
 
 
 # Your Github Repo.. Will be shown on /start Command
-GITHUB_REPO = getenv("GITHUB_REPO", "https://github.com")
+GITHUB_REPO = getenv("GITHUB_REPO", "https://github.com/TheTeamVivek/YukkiMusic")
 
 
 # Spotify Client.. Get it from https://developer.spotify.com/dashboard
@@ -176,7 +176,7 @@ SET_CMDS = getenv("SET_CMDS", "False")
 
 
 # You'll need a Pyrogram String Session for these vars. Generate String from our session generator bot @YukkiStringBot
-STRING_SESSIONS = list(map(str.strip, getenv("STRING_SESSIONS", "BQGCtzAAc2M5Wz1PH4LqElaWcMlUJKIac7j5p6jV_SFn1hLZizxCsBVsQ4m7jl3G8LueazMwUd1-pGO9orWTFPnQeAcuGXbZdbEAqGvLWhr4Rb3PZgq9WW9FWgKKsPnEt746EGPqcJGhMea7nybhYRsTLHmzWnvZdvtIQPHjaw94WD5ntCSv_gj6E1E4aRvWaKejoiT31RDRntnG5MGWDxgvdeBqCO1t0p5MtJs4zmS4TjLo3TkvhFsAIvKDJ8NmUmfQ1NpvSEj-wG30UspuiBnGwYRCStSiEU7EVS6ojNkkQOH071_-GW2qtVpRrzIWET229Wn_glYe3HSuLfhYNgW2SJdnvAAAAAGR1wUkAA").split(",")))
+STRING_SESSIONS = list(map(str.strip, getenv("STRING_SESSIONS", None).split(",")))
 
 
 #  __     ___    _ _  ___  _______   __  __ _    _  _____ _____ _____
