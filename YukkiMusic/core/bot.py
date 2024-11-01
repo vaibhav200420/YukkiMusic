@@ -148,7 +148,7 @@ class YukkiBot(TelegramClient):
         else:
             pass
         try:
-            a = permissions = await self.get_permissions(config.LOG_GROUP_ID, self.id)
+            a = await self.get_permissions(config.LOG_GROUP_ID, self.id)
             if not a.is_admin:
                 LOGGER(__name__).error("Please promote bot as admin in logger group")
                 sys.exit()
