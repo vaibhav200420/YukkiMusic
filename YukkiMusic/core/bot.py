@@ -75,19 +75,14 @@ class YukkiBot(TelegramClient):
                 await self.leave_chat(chat_id)
                 
 
-    async def send_photo(self, *args, **kwargs):
+    async def send_file(self, *args, **kwargs):
         try:
-            return await super().send_photo(*args, **kwargs)
+            return await super().send_file(*args, **kwargs)
         except FloodWaitError as e:
             time = int(e.seconds)
             await asyncio.sleep(time)
             if time < 25:
-                return await self.send_photo(self, *args, **kwargs)
-        except ChatSendPhotosForbiddenError:
-            chat_id = kwargs.get("chat_id") or args[0]
-            if chat_id:
-                await self.send_message(chat_id, "I don't have the right to send photos in this chat, leaving now..")
-                await self.leave_chat(chat_id)
+                return await self.send_file(self, *args, **kwargs)
 
     async def start(self):
         await super().start()
