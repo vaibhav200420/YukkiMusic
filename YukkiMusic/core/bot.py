@@ -14,14 +14,16 @@ uvloop.install()
 
 import sys
 
-from pyrogram import Client
+from telethon import TelegramClient
 from pyrogram.enums import ChatMemberStatus
-from pyrogram.errors import (
-    ChatSendPhotosForbidden,
-    ChatWriteForbidden,
-    FloodWait,
-    MessageIdInvalid,
+
+from telethon.errors import (
+    ChatSendPhotosForbiddenError,
+    ChatWriteForbiddenError
+    FloodWaitError,
+    MessageIdInvalidError,
 )
+
 from pyrogram.types import (
     BotCommand,
     BotCommandScopeAllChatAdministrators,
@@ -34,29 +36,25 @@ import config
 from ..logging import LOGGER
 
 
-class YukkiBot(Client):
+class YukkiBot(TelegramClient):
     def __init__(self):
         LOGGER(__name__).info(f"Starting Bot")
         super().__init__(
             "YukkiMusic",
             api_id=config.API_ID,
             api_hash=config.API_HASH,
-            bot_token=config.BOT_TOKEN,
-            in_memory=True,
-            sleep_threshold=240,
-            max_concurrent_transmissions=5,
-            workers=50,
+            flood_sleep_threshold=240,
         )
 
-    async def edit_message_text(self, *args, **kwargs):
+    async def edit_message(self, *args, **kwargs):
         try:
-            return await super().edit_message_text(*args, **kwargs)
-        except FloodWait as e:
-            time = int(e.value)
+            return await super().edit_message(*args, **kwargs)
+        except FloodWaitError as e:
+            time = int(e.seconds)
             await asyncio.sleep(time)
             if time < 25:
                 return await self.edit_message_text(self, *args, **kwargs)
-        except MessageIdInvalid:
+        except MessageIdInvalidError:
             pass
 
     async def send_message(self, *args, **kwargs):
@@ -66,12 +64,12 @@ class YukkiBot(Client):
 
         try:
             return await super().send_message(*args, **kwargs)
-        except FloodWait as e:
-            time = int(e.value)
+        except FloodWaitError as e:
+            time = int(e.seconds)
             await asyncio.sleep(time)
             if time < 25:
                 return await self.send_message(self, *args, **kwargs)
-        except ChatWriteForbidden:
+        except ChatWriteForbiddenError:
             chat_id = kwargs.get("chat_id") or args[0]
             if chat_id:
                 await self.leave_chat(chat_id)
@@ -80,12 +78,12 @@ class YukkiBot(Client):
     async def send_photo(self, *args, **kwargs):
         try:
             return await super().send_photo(*args, **kwargs)
-        except FloodWait as e:
-            time = int(e.value)
+        except FloodWaitError as e:
+            time = int(e.seconds)
             await asyncio.sleep(time)
             if time < 25:
                 return await self.send_photo(self, *args, **kwargs)
-        except ChatSendPhotosForbidden:
+        except ChatSendPhotosForbiddenError:
             chat_id = kwargs.get("chat_id") or args[0]
             if chat_id:
                 await self.send_message(chat_id, "I don't have the right to send photos in this chat, leaving now..")
