@@ -10,6 +10,7 @@ motor
 psutil
 pytube
 pykeyboard
+pillow # Not used just for telethon image compression 
 py-tgcalls==2.0.4
 python-dotenv
 PyTgCrypto>=1.2.7
