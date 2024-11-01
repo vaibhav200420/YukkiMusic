@@ -15,7 +15,6 @@ uvloop.install()
 import sys
 
 from telethon import TelegramClient
-from pyrogram.enums import ChatMemberStatus
 
 from telethon.errors import (
     ChatSendPhotosForbiddenError,
@@ -149,10 +148,13 @@ class YukkiBot(TelegramClient):
         else:
             pass
         try:
-            a = await self.get_chat_member(config.LOG_GROUP_ID, self.id)
-            if a.status != ChatMemberStatus.ADMINISTRATOR:
+            a = permissions = await self.get_permissions(config.LOG_GROUP_ID, self.id)
+            if not a.is_admin:
                 LOGGER(__name__).error("Please promote bot as admin in logger group")
                 sys.exit()
+        except ValueError:
+            LOGGER(__name__).error("Please promote bot as admin in logger group")
+            sys.exit()
         except Exception:
             pass
         
