@@ -24,7 +24,12 @@ from YukkiMusic import app
 from ..utils.formatters import convert_bytes, get_readable_time, seconds_to_min
 
 from telethon import events
-from telethon.tl.types import DocumentAttributeFilename
+from telethon.tl.types import (
+    DocumentAttributeFilename,
+    DocumentAttributeAudio,
+    DocumentAttributeVideo,
+)
+
 
 
 
@@ -74,11 +79,16 @@ class TeleAPI:
         
         return file_name
 
-
-    async def get_duration(self, file):
+    async def get_duration(self, event: events.NewMessage):
         try:
-            dur = seconds_to_min(file.duration)
-        except:
+            duration = None
+            if event.message.media and event.message.media.document:
+                for attribute in event.message.media.document.attributes:
+                    if isinstance(attribute, (DocumentAttributeAudio, DocumentAttributeVideo)):
+                        duration = attribute.duration
+                        break
+            dur = seconds_to_min(duration) if duration is not None else "Unknown"
+        except Exception:
             dur = "Unknown"
         return dur
 
