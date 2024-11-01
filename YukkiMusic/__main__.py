@@ -63,7 +63,6 @@ async def init():
     await Yukki.decorators()
     LOGGER("YukkiMusic").info("YukkiMusic Started Successfully")
     await idle()
-    await app.stop()
     await userbot.stop()
 
 
