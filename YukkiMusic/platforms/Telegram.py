@@ -23,6 +23,11 @@ from YukkiMusic import app
 
 from ..utils.formatters import convert_bytes, get_readable_time, seconds_to_min
 
+from telethon import events
+from telethon.tl.types import DocumentAttributeFilename
+
+
+
 downloader = {}
 
 
@@ -50,15 +55,25 @@ class TeleAPI:
             link = f"https://t.me/c/{xf}/{event.message.reply_to.reply_to_msg_id}"
         return link
 
-    async def get_filename(self, file, audio: Union[bool, str] = None):
+    async def get_filename(self, event: events.NewMessage, audio: Union[bool, str] = None):
         try:
-            file_name = file.file_name
-            if file_name is None:
-                file_name = "ᴛᴇʟᴇɢʀᴀᴍ ᴀᴜᴅɪᴏ ғɪʟᴇ" if audio else "ᴛᴇʟᴇɢʀᴀᴍ ᴠɪᴅᴇᴏ ғɪʟᴇ"
-
-        except:
-            file_name = "ᴛᴇʟᴇɢʀᴀᴍ ᴀᴜᴅɪᴏ ғɪʟᴇ" if audio else "ᴛᴇʟᴇɢʀᴀᴍ ᴠɪᴅᴇᴏ ғɪʟᴇ"
+            if event.message.media and event.message.media.document:
+                file_name = None
+                for attribute in event.message.media.document.attributes:
+                    if isinstance(attribute, DocumentAttributeFilename):
+                        file_name = attribute.file_name
+                        break
+                
+                if file_name is None:
+                    file_name = "Telegram audio file" if audio else "Telegram video file"
+            else:
+                file_name = "Telegram audio file" if audio else "Telegram video file"
+        
+        except Exception:
+            file_name = "Telegram audio file" if audio else "Telegram video file"
+        
         return file_name
+
 
     async def get_duration(self, file):
         try:
