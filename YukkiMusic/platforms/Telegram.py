@@ -41,12 +41,13 @@ class TeleAPI:
                 await message.reply_text(x)
         return True
 
-    async def get_link(self, message):
-        if message.chat.username:
-            link = f"https://t.me/{message.chat.username}/{message.reply_to_message.id}"
+    async def get_link(self, event):
+        chat = await event.get_chat()
+        if chat.username:
+            link = f"https://t.me/{chat.username}/{event.message.reply_to.reply_to_msg_id}"
         else:
-            xf = str((message.chat.id))[4:]
-            link = f"https://t.me/c/{xf}/{message.reply_to_message.id}"
+            xf = str((event.chat_id))[4:]
+            link = f"https://t.me/c/{xf}/{event.message.reply_to.reply_to_msg_id}"
         return link
 
     async def get_filename(self, file, audio: Union[bool, str] = None):
