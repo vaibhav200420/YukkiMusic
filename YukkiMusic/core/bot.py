@@ -23,13 +23,13 @@ from telethon.errors import (
     FloodWaitError,
     MessageIdInvalidError,
 )
-
-from pyrogram.types import (
+from telethon.tl.types import (
     BotCommand,
-    BotCommandScopeAllChatAdministrators,
-    BotCommandScopeAllGroupChats,
-    BotCommandScopeAllPrivateChats,
+    BotCommandScopeUsers,
+    BotCommandScopeChats,
+    BotCommandScopeChatAdmins,
 )
+from telethon.tl.functions.bots import SetBotCommandsRequest
 
 import config
 
@@ -44,6 +44,7 @@ class YukkiBot(TelegramClient):
             api_id=config.API_ID,
             api_hash=config.API_HASH,
             flood_sleep_threshold=240,
+            parse_mode='markdown',
         )
 
     async def edit_message(self, *args, **kwargs):
@@ -85,17 +86,17 @@ class YukkiBot(TelegramClient):
                 return await self.send_file(self, *args, **kwargs)
 
     async def start(self):
-        await super().start()
+        await super().start(bot_token=config.BOT_TOKEN)
         get_me = await self.get_me()
         self.username = get_me.username
         self.id = get_me.id
         self.name = self.me.first_name + " " + (self.me.last_name or "")
-        self.mention = self.me.mention
-
+        self.mention = f"[{self.name}](tg://user?id={self.id})"
         try:
             await self.send_message(
                 config.LOG_GROUP_ID,
                 text=f"<u><b>{self.mention} Bot Started :</b><u>\n\nId : <code>{self.id}</code>\nName : {self.name}\nUsername : @{self.username}",
+                parse_mode='html',
             )
         except:
             LOGGER(__name__).error(
@@ -104,38 +105,44 @@ class YukkiBot(TelegramClient):
             # sys.exit()
         if config.SET_CMDS == str(True):
             try:
-                await self.set_bot_commands(
-                    commands=[
-                        BotCommand("start", "Start the bot"),
-                        BotCommand("help", "Get the help menu"),
-                        BotCommand("ping", "Check if the bot is alive or dead"),
-                    ],
-                    scope=BotCommandScopeAllPrivateChats(),
-                )
-                await self.set_bot_commands(
-                    commands=[
-                        BotCommand("play", "Start playing requested song"),
-                    ],
-                    scope=BotCommandScopeAllGroupChats(),
-                )
-                await self.set_bot_commands(
+                await self(SetBotCommandsRequest(
+                        scope=BotCommandScopeUsers(),
+                        commands=[
+                            BotCommand("start", "Start the bot"),
+                            BotCommand("help", "Get the help menu"),
+                            BotCommand("ping", "Check if the bot is alive or dead"),
+                        ],
+                        lang_code="",
+                ))
+                await self(BotCommandScopeChats(
                     commands=[
                         BotCommand("play", "Start playing requested song"),
-                        BotCommand("skip", "Move to next track in queue"),
-                        BotCommand("pause", "Pause the current playing song"),
-                        BotCommand("resume", "Resume the paused song"),
-                        BotCommand("end", "Clear the queue and leave voicechat"),
-                        BotCommand("shuffle", "Randomly shuffles the queued playlist."),
-                        BotCommand(
-                            "playmode",
-                            "Allows you to change the default playmode for your chat",
-                        ),
-                        BotCommand(
-                            "settings",
-                            "Open the settings of the music bot for your chat.",
-                        ),
                     ],
-                    scope=BotCommandScopeAllChatAdministrators(),
+                    lang_code="",
+                    scope=BotCommandScopeChats(),
+                ))
+                await self(
+                    BotCommandScopeChats(
+                        commands=[
+                            BotCommand("play", "Start playing requested song"),
+                            BotCommand("skip", "Move to next track in queue"),
+                            BotCommand("pause", "Pause the current playing song"),
+                            BotCommand("resume", "Resume the paused song"),
+                            BotCommand("end", "Clear the queue and leave voicechat"),
+                            BotCommand("shuffle", "Randomly shuffles the queued playlist."),
+                            BotCommand(
+                                "playmode",
+                                "Allows you to change the default playmode for your chat",
+                            ),
+                            BotCommand(
+                                "settings",
+                                "Open the settings of the music bot for your chat.",
+                            ),
+                        ],
+                        lang_code="",
+                        scope=BotCommandScopeChatAdmins(),
+                    )
+                        
                 )
             except:
                 pass
@@ -148,11 +155,5 @@ class YukkiBot(TelegramClient):
                 sys.exit()
         except Exception:
             pass
-        if get_me.last_name:
-            self.name = get_me.first_name + " " + get_me.last_name
-        else:
-            self.name = get_me.first_name
+        
         LOGGER(__name__).info(f"MusicBot started as {self.name}")
-
-    async def stop(self):
-        await super().stop()
