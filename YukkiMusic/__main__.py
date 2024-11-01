@@ -67,5 +67,5 @@ async def init():
 
 
 if __name__ == "__main__":
-    app.run(init())
+        asyncio.get_event_loop_policy().get_event_loop().run_until_complete(init())
     LOGGER("YukkiMusic").info("Stopping YukkiMusic! GoodBye")
