@@ -159,3 +159,12 @@ class YukkiBot(TelegramClient):
             pass
         
         LOGGER(__name__).info(f"MusicBot started as {self.name}")
+
+    
+    def on_message(self, pattern):
+
+        def decorator(func):
+            self.add_event_handler(func, events.NewMessage(pattern=f"^[^\\s]*{pattern}$"))
+            return func
+
+        return decorator
