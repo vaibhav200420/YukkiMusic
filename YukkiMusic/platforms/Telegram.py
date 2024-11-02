@@ -147,7 +147,7 @@ class TeleAPI:
             pass
         return False
 
-    async def download(self, event, mystic, fname):
+    async def download(self, _, event, mystic, fname):
         left_time = {}
         speed_counter = {}
         if os.path.exists(fname):
@@ -167,6 +167,8 @@ class TeleAPI:
                     eta = int((total - current) / speed)
                     downloader[event.id] = eta
                     eta = get_readable_time(eta)
+                    if not eta:
+                        eta = "0 sec"
                     total_size = convert_bytes(total)
                     completed_size = convert_bytes(current)
                     speed = convert_bytes(speed)
