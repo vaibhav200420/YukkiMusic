@@ -14,7 +14,7 @@ uvloop.install()
 
 import sys
 
-from telethon import TelegramClient
+from telethon import events, TelegramClient
 
 from telethon.errors import (
     ChatSendPhotosForbiddenError,
