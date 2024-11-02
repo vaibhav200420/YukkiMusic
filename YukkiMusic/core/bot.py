@@ -164,7 +164,7 @@ class YukkiBot(TelegramClient):
     def on_message(self, pattern):
 
         def decorator(func):
-            self.add_event_handler(func, events.NewMessage(pattern=f"^[^\\s]*{pattern}$"))
+            self.add_event_handler(func, events.NewMessage(pattern=f"^.{pattern}"))
             return func
 
         return decorator
