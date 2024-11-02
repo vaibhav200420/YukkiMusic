@@ -15,7 +15,6 @@ from datetime import datetime, timedelta
 from typing import Union
 
 import aiohttp
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Voice
 
 import config
 from config import lyrical
