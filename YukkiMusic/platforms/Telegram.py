@@ -23,7 +23,7 @@ from YukkiMusic import app
 
 from ..utils.formatters import convert_bytes, get_readable_time, seconds_to_min
 
-from telethon import events
+from telethon import Button, events
 from telethon.tl.types import (
     DocumentAttributeFilename,
     DocumentAttributeAudio,
@@ -43,7 +43,7 @@ class TeleAPI:
         self.chars_limit = 4096
         self.sleep = config.TELEGRAM_DOWNLOAD_EDIT_SLEEP
 
-    async def send_split_text(event:events.NewMessage, string, chars_limit):
+    async def send_split_text(self, event:events.NewMessage, string, chars_limit):
         n = chars_limit
         out = [(string[i : i + n]) for i in range(0, len(string), n)]
         j = 0
@@ -114,7 +114,6 @@ class TeleAPI:
                     file_name = f"{document.id}.{document.mime_type.split('/')[-1]}"
 
             downloads_dir = os.path.realpath("downloads")
-
             file_name = os.path.join(downloads_dir, file_name)
 
         return file_name
@@ -148,7 +147,7 @@ class TeleAPI:
             pass
         return False
 
-    async def download(self, _, message, mystic, fname):
+    async def download(self, event, mystic, fname):
         left_time = {}
         speed_counter = {}
         if os.path.exists(fname):
@@ -159,81 +158,62 @@ class TeleAPI:
                 if current == total:
                     return
                 current_time = time.time()
-                start_time = speed_counter.get(message.id)
+                start_time = speed_counter.get(event.id)
                 check_time = current_time - start_time
-                upl = InlineKeyboardMarkup(
-                    [
-                        [
-                            InlineKeyboardButton(
-                                text="🚦 ᴄᴀɴᴄᴇʟ ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ",
-                                callback_data="stop_downloading",
-                            ),
-                        ]
-                    ]
-                )
-                if datetime.now() > left_time.get(message.id):
+                upl = [Button.inline("🚦 ᴄᴀɴᴄᴇʟ ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ", "stop_downloading")]
+                if datetime.now() > left_time.get(event.id):
                     percentage = current * 100 / total
-                    percentage = str(round(percentage, 2))
                     speed = current / check_time
                     eta = int((total - current) / speed)
-                    downloader[message.id] = eta
+                    downloader[event.id] = eta
                     eta = get_readable_time(eta)
-                    if not eta:
-                        eta = "0 sec"
                     total_size = convert_bytes(total)
                     completed_size = convert_bytes(current)
                     speed = convert_bytes(speed)
                     text = f"""
-**{app.mention} ᴛᴇʟᴇɢʀᴀᴍ ᴍᴇᴅɪᴀ ᴅᴏᴡɴʟᴏᴀᴅᴇʀ**
+**Telegram Media Downloader**
 
-**ᴛᴏᴛᴀʟ ғɪʟᴇ sɪᴢᴇ:** {total_size}
-**ᴄᴏᴍᴘʟᴇᴛᴇᴅ:** {completed_size} 
-**ᴘᴇʀᴄᴇɴᴛᴀɢᴇ:** {percentage[:5]}%
-
-**sᴘᴇᴇᴅ:** {speed}/s
-**ᴇʟᴘᴀsᴇᴅ ᴛɪᴍᴇ:** {eta}"""
+**Total File Size:** {total_size}
+**Completed:** {completed_size}
+**Percentage:** {percentage:.2f}%
+**Speed:** {speed}/s
+**Elapsed Time:** {eta}"""
                     try:
-                        await mystic.edit_text(text, reply_markup=upl)
+                        await event.client.edit_message(event.chat_id, mystic, text, buttons=upl)
                     except:
                         pass
-                    left_time[message.id] = datetime.now() + timedelta(
-                        seconds=self.sleep
-                    )
+                    left_time[event.id] = datetime.now() + timedelta(seconds=self.sleep)
 
-            speed_counter[message.id] = time.time()
-            left_time[message.id] = datetime.now()
+            speed_counter[event.id] = time.time()
+            left_time[event.id] = datetime.now()
 
             try:
-                await app.download_media(
-                    message.reply_to_message,
-                    file_name=fname,
-                    progress=progress,
+                await event.client.download_media(
+                    event.reply_to_msg_id,  # Assuming direct reply-to context
+                    file=fname,
+                    progress_callback=progress
                 )
-                await mystic.edit_text(
-                    "sᴜᴄᴄᴇssғᴜʟʟʏ ᴅᴏᴡɴʟᴏᴀᴅᴇᴅ...\n ᴘʀᴏᴄᴇssɪɴɢ ғɪʟᴇ ɴᴏᴡ"
-                )
-                downloader.pop(message.id, None)
+                await event.client.edit_message(event.chat_id, mystic, "Successfully downloaded... Processing file now")
+                downloader.pop(event.id, None)
             except:
-                await mystic.edit_text(_["tg_2"])
+                await event.client.edit_message(event.chat_id, mystic, _["tg_2"])
 
-        if len(downloader) > 10:
-            timers = []
-            for x in downloader:
-                timers.append(downloader[x])
-            try:
-                low = min(timers)
-                eta = get_readable_time(low)
-            except:
-                eta = "Unknown"
-            await mystic.edit_text(_["tg_1"].format(eta))
-            return False
+            if len(downloader) > 10:
+                timers = [downloader[x] for x in downloader]
+                try:
+                    low = min(timers)
+                    eta = get_readable_time(low)
+                except:
+                    eta = "Unknown"
+                await event.client.edit_message(event.chat_id, mystic, _["tg_1"].format(eta))
+                return False
 
-        task = asyncio.create_task(down_load(), name=f"download_{message.chat.id}")
+        task = asyncio.create_task(down_load(), name=f"download_{event.chat_id}")
         lyrical[mystic.id] = task
         await task
-        downloaded = downloader.get(message.id)
+        downloaded = downloader.get(event.id)
         if downloaded:
-            downloader.pop(message.id)
+            downloader.pop(event.id)
             return False
         verify = lyrical.get(mystic.id)
         if not verify:
