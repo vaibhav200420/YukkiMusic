@@ -43,17 +43,17 @@ class TeleAPI:
         self.chars_limit = 4096
         self.sleep = config.TELEGRAM_DOWNLOAD_EDIT_SLEEP
 
-    async def send_split_text(self, message, string):
-        n = self.chars_limit
+    async def send_split_text(event:events.NewMessage, string, chars_limit):
+        n = chars_limit
         out = [(string[i : i + n]) for i in range(0, len(string), n)]
         j = 0
         for x in out:
             if j <= 2:
                 j += 1
-                await message.reply_text(x)
+                await event.reply(x)
         return True
 
-    async def get_link(self, event):
+    async def get_link(self, event:events.NewMessage):
         chat = await event.get_chat()
         if chat.username:
             link = f"https://t.me/{chat.username}/{event.message.reply_to.reply_to_msg_id}"
