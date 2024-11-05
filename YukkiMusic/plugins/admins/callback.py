@@ -80,7 +80,7 @@ async def markup_panel(client, CallbackQuery: CallbackQuery, _):
 
 @app.on_callback_query(filters.regex("MainMarkup") & ~BANNED_USERS)
 @languageCB
-async def del_back_playlist(client, CallbackQuery, _):
+async def main_markup_(client, CallbackQuery, _):
     await CallbackQuery.answer()
     callback_data = CallbackQuery.data.strip()
     callback_request = callback_data.split(None, 1)[1]
@@ -103,7 +103,7 @@ async def del_back_playlist(client, CallbackQuery, _):
 
 @app.on_callback_query(filters.regex("Pages") & ~BANNED_USERS)
 @languageCB
-async def del_back_playlist(client, CallbackQuery, _):
+async def pages_markup(client, CallbackQuery, _):
     await CallbackQuery.answer()
     callback_data = CallbackQuery.data.strip()
     callback_request = callback_data.split(None, 1)[1]
@@ -134,7 +134,7 @@ async def del_back_playlist(client, CallbackQuery, _):
 
 @app.on_callback_query(filters.regex("ADMIN") & ~BANNED_USERS)
 @languageCB
-async def del_back_playlist(client, CallbackQuery, _):
+async def admin_callback(client, CallbackQuery, _):
     callback_data = CallbackQuery.data.strip()
     callback_request = callback_data.split(None, 1)[1]
     command, chat = callback_request.split("|")
@@ -533,7 +533,7 @@ async def anonymous_check(client, CallbackQuery):
 
 @app.on_callback_query(filters.regex("YukkiPlaylists") & ~BANNED_USERS)
 @languageCB
-async def play_playlists_command(client, CallbackQuery, _):
+async def play_playlists_cb(client, CallbackQuery, _):
     callback_data = CallbackQuery.data.strip()
     callback_request = callback_data.split(None, 1)[1]
     (
